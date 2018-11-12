@@ -11,7 +11,7 @@ class App extends Component {
 
   makeRequest(user) {
     return new Promise((resolve, reject) => {
-
+      console.log(this.state)
       axios.post('http://127.0.0.1:5000/list', {
           "aws": {
             "enabled": true,
@@ -71,14 +71,13 @@ class App extends Component {
     super(props);
     this.state = {
       inputValue: '',
-      AWS_Region: 'default',
-      Auth_Type: 'default',
+      AWS_Region: 'Default',
+      Auth_Type: 'Default',
       Profile: {},
-      Auth_Keys: {
-        Access_Key: '',
-        Secret_Key: '',
-        STS_Token: ''
-      },
+      Access_Key: '',
+      Secret_Key: '',
+      STS_Token: '',
+      Output_Type: ''
     };
   }
   render() {
@@ -109,10 +108,53 @@ class App extends Component {
             <br></br>
             <label>
             Authentication Type:
-            <input placeholder='default, profile, keys' type="input" onChange={evt => {this.setState({Auth_Type:evt.target.value})}} />
             </label>
-            <br></br>
+            <select placeholder='Default, Profile, Keys' type="input" onChange={evt => {this.setState({Auth_Type:evt.target.value})}}>
+            <option>
+              Default
+            </option>
+            <option>  
+              Profile
+            </option>
+            <option>
+                Keys
+            </option>
+            </select>
+            {this.state.Auth_Type === 'Default' && (<br></br>)
+            }
+            {this.state.Auth_Type === 'Keys' && (<div>
+              <label>Access Key*</label>
+                  <input type="password" name="Access_Key"  onChange={evt => {this.setState({Access_Key:evt.target.value})}}/>
+              <br></br>
+              <label>Secret Key*</label>
+                  <input type="password" name="Secret_Key"  onChange={evt => {this.setState({Secret_Key:evt.target.value})}}/>
+              <br></br>
+              <label>STS Token</label>
+                  <input type="password" name="STS_Token"  onChange={evt => {this.setState({STS_Token:evt.target.value})}}/>
+              </div>)
+            }
+            {this.state.Auth_Type === 'Profile' && (<div>
+              <label>Provide an array of profiles. Sorry, I should do this for you</label>
+                  <input type="text" name="Profile"  onChange={evt => {this.setState({Profile:evt.target.value})}}/>
+        
+              </div>)
+            }
             
+            <label>
+              Output Format
+            </label>
+            <select placeholder='Output selection' type="input" onChange={evt => {this.setState({Output_Type:evt.target.value})}}>
+            <option>
+              Table
+            </option>
+            <option>  
+              JSON
+            </option>
+            <option>
+              Noah Sucks
+            </option>
+            </select>
+            <br></br>
             <button onClick={(e) => {this.handleEntailmentRequest(e, this.state.inputValue)}}>Submit</button>
          
          
