@@ -1,79 +1,88 @@
-import React, { Component } from 'react';
+import React, {
+  Component
+} from 'react';
 import logo from './logo.svg';
 import './App.css';
 const axios = require('axios');
 
-function getGreeting(user) {
-  return new Promise((resolve, reject) => {
-
-  axios.post('http://127.0.0.1:5000/list', {
-      "aws": {
-        "enabled": true,
-        "regions": {
-          "us-east-1": []
-        },
-        "auth": {
-          "type": "profile",
-          "profile names": [
-            ""
-          ]
-        }
-      },
-      "output": {
-        "enabled": true,
-        "type": "json",
-        "path": "../basic_table.html",
-        "filter": {
-          "service": [
-            ".*__ci"
-          ]
-        }
-      }
-  })
-    .then(function (response) {
-      // handle success
-      console.log(response.data[0].service)
 
 
-    resolve(JSON.stringify(response.data[0].service));
-      console.log("shit")
-
-    })
-    .catch(function (error) {
-      // handle error
-      console.log(error);
-    })
-    .then(function () {
-      // always executed
-    });
-    })
-}
-function myFunction(elm) {
-  console.log("fuck this guy: " + elm)
-}
-function handleEntailmentRequest(event, data) {
-  event.preventDefault();
-  myFunction(data)
-  console.log("handle request ");
-}
 class App extends Component {
-  componentDidMount() {
-   // fetch data and update state
-   getGreeting("api").then(response => {this.setState({
-                  response: response
-              })
-              console.log(JSON.stringify(this.state.response) + " : titties")}
-            )
-}
+
+  makeRequest(user) {
+    return new Promise((resolve, reject) => {
+
+      axios.post('http://127.0.0.1:5000/list', {
+          "aws": {
+            "enabled": true,
+            "regions": {
+              "us-east-1": []
+            },
+            "auth": {
+              "type": "profile",
+              "profile names": [
+                ""
+              ]
+            }
+          },
+          "output": {
+            "enabled": true,
+            "type": "json",
+            "path": "../basic_table.html",
+            "filter": {
+              "service": [
+                ".*__ci"
+              ]
+            }
+          }
+        })
+        .then(function (response) {
+          // handle success
+          console.log(response.data[0].service)
+
+
+          resolve(JSON.stringify(response.data[0].service));
+          console.log("shit")
+
+        })
+        .catch(function (error) {
+          // handle error
+          console.log(error);
+          reject("Well, blame Noah, looks like the API is ded.");
+          
+        })
+        .then(function () {
+          // always executed
+        });
+    })
+  };
+
+  handleEntailmentRequest(event, data) {
+    console.log(this.state)
+    event.preventDefault();
+    this.makeRequest(data).then(response => {
+      this.setState({
+        response: response
+      })
+      console.log("API Response:  " + JSON.stringify(this.state.response));
+    });
+  };
   constructor(props) {
     super(props);
     this.state = {
       inputValue: '',
-      response:''
+      AWS_Region: 'default',
+      Auth_Type: 'default',
+      Profile: {},
+      Auth_Keys: {
+        Access_Key: '',
+        Secret_Key: '',
+        STS_Token: ''
+      },
     };
   }
   render() {
-    if(!this.state.response){
+    if(this.state.response){
     console.log(this.state.response)
         return (
           <img src={logo} className="App-logo" alt="logo" />
@@ -84,43 +93,60 @@ class App extends Component {
     return (
 
       <div className="App">
-        <header> {this.state.response}</header>
-        <input value={this.state.inputValue} onChange={evt => this.updateInputValue(evt)} />
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
+          <h2>
+            Cloud Insights
+          </h2>
+          </header>
+          <form>
+            <div className="App-link">
+              * indicates Required field
+            </div>
+            <label>
+              AWS Region:
+            <input placeholder="Default Uses All Regions" tooltip="eg. us-east-1" type="text" name="AWS_Region"  onChange={evt => {this.setState({AWS_Region:evt.target.value})}}/>
+            </label>
+            <br></br>
+            <label>
+            Authentication Type:
+            <input placeholder='default, profile, keys' type="input" onChange={evt => {this.setState({Auth_Type:evt.target.value})}} />
+            </label>
+            <br></br>
+            
+            <button onClick={(e) => {this.handleEntailmentRequest(e, this.state.inputValue)}}>Submit</button>
+         
+         
+         
+         
+          </form>
+
+
+
+
+          <div>
           <a
             className="App-link"
-            href="https://reactjs.org"
+            href="https://www.github.com/noahjohnhay/cloud-insight"
             target="_blank"
             rel="noopener noreferrer"
           >
-            Learn React
+            To contribute or view source code for sever click header
           </a>
-          <form>
-            <label>
-              Name:
-    <input type="text" name="name" />
-            </label>
-            <input type="input" value={this.state.inputValue} onChange={evt => this.updateInputValue(evt)}/>
-            <button onClick={(e) => {handleEntailmentRequest(e, this.state.inputValue)}}>hella cool button</button>
-          </form>
-          <p>
-          {this.state.jonathan}
-          </p>
-        </header>
+          </div>
+          <div>
+          <a 
+            className="App-link"
+            href="https://www.github.com/mechanicalkeyboard/cloud-visuals"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            To laugh at the front-end code click here
+          </a>
+          </div>
+        
       </div>
     );
   }
-  updateInputValue(evt) {
-    this.setState({
-      inputValue: evt.target.value
-    });
-    console.log(evt.target.value)
-  }
-
 }
 
 
