@@ -4,10 +4,40 @@ import './App.css';
 const axios = require('axios');
 
 function getGreeting(user) {
-  axios.get('127.0.0.1:5000/list')
+  return new Promise((resolve, reject) => {
+
+  axios.post('http://127.0.0.1:5000/list', {
+      "aws": {
+        "enabled": true,
+        "regions": {
+          "us-east-1": []
+        },
+        "auth": {
+          "type": "profile",
+          "profile names": [
+            ""
+          ]
+        }
+      },
+      "output": {
+        "enabled": true,
+        "type": "json",
+        "path": "../basic_table.html",
+        "filter": {
+          "service": [
+            ".*__ci"
+          ]
+        }
+      }
+  })
     .then(function (response) {
       // handle success
-      console.log(response);
+      console.log(response.data[0].service)
+
+
+    resolve(JSON.stringify(response.data[0].service));
+      console.log("shit")
+
     })
     .catch(function (error) {
       // handle error
@@ -16,10 +46,7 @@ function getGreeting(user) {
     .then(function () {
       // always executed
     });
-  if (user) {
-    return <h1>Hello, {user}!</h1>;
-  }
-  return <h1>Hello, Stranger.</h1>;
+    })
 }
 function myFunction(elm) {
   console.log("fuck this guy: " + elm)
@@ -30,21 +57,39 @@ function handleEntailmentRequest(event, data) {
   console.log("handle request ");
 }
 class App extends Component {
+  componentDidMount() {
+   // fetch data and update state
+   getGreeting("api").then(response => {this.setState({
+                  response: response
+              })
+              console.log(JSON.stringify(this.state.response) + " : titties")}
+            )
+}
   constructor(props) {
     super(props);
     this.state = {
-      inputValue: ''
+      inputValue: '',
+      response:''
     };
   }
   render() {
+    if(!this.state.response){
+    console.log(this.state.response)
+        return (
+          <img src={logo} className="App-logo" alt="logo" />
+
+        )
+      }
+    else
     return (
+
       <div className="App">
+        <header> {this.state.response}</header>
         <input value={this.state.inputValue} onChange={evt => this.updateInputValue(evt)} />
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <p>
             Edit <code>src/App.js</code> and save to reload.
-            {getGreeting("jonathan").then}
           </p>
           <a
             className="App-link"
@@ -62,6 +107,9 @@ class App extends Component {
             <input type="input" value={this.state.inputValue} onChange={evt => this.updateInputValue(evt)}/>
             <button onClick={(e) => {handleEntailmentRequest(e, this.state.inputValue)}}>hella cool button</button>
           </form>
+          <p>
+          {this.state.jonathan}
+          </p>
         </header>
       </div>
     );
