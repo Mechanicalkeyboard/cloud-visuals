@@ -6,7 +6,9 @@
   animation: App-logo-spin infinite 20s linear;
   height: 40vmin;
 }
-
+.longInput{
+  width: 150px;
+}
 .App-header {
   background-color: #282c34;
   display: flex;
@@ -16,14 +18,28 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
-
+.dingus {
+  margin-block-end: 0em;
+}
+.boldTable{
+  border-color: #111111
+}
 .App-link {
   color: #111111;
   font-size: calc(2px + 1vmin);
   text-align: center;
   align-items: bottom;
 }
-
+.warn{
+  text-align: right;
+  font-size: calc(1px + 1vmin);
+}
+.shit{
+  background: #EFA692
+}
+.shit2{
+  background: #dd0011
+}
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
