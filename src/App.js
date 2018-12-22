@@ -1,74 +1,12 @@
 import React, {
   Component
 } from 'react';
-import Jimberly from './components/list'
-import logo from './logo.svg';
+import ResultTable from './components/resultTable'
 import './App.css';
-import 'react-table/react-table.css'
 const axios = require('axios');
 
 
 class App extends Component {
-  makeRequest(user) {
-
-    return new Promise((resolve, reject) => {
-      // console.log(this.state)
-      let body = {
-        "aws": {
-          "enabled": true,
-          "regions": {
-            "us-east-1":["jon", "paul"]
-          },
-          "auth": {
-            "type": "default"
-          }
-        },
-        "output": {
-          "enabled": true,
-          "type": "json"
-        }
-      };
-      //Build the region object
-      let region = {}
-      region[this.state.AWS_Region]=[];
-      //Add the region object to the body
-      body['aws']['regions'] = region
-      console.log('This is my body, I am not ashamed: '+ JSON.stringify(body))
-      axios.post('http://10.210.235.189:5000/list', body)
-        .then(response => {
-          // handle success
-          console.log(JSON.stringify(response.data[0].service))
-          let tempData = this.state.data;
-          tempData = response.data
-           this.setState({
-            data: tempData
-          })
-          console.log(this.state)
-          resolve(JSON.stringify(response.data[0].service));
-        })
-        .catch(function (error) {
-          // handle error
-          console.log(error);
-          reject('Well, blame Noah, looks like the API is ded.');
-          
-        })
-        .then(function () {
-          // always executed
-        });
-    }, user)
-  };
-
-  handleEntailmentRequest(event, data) {
-    // console.log(this.state)
-    event.preventDefault();
-    console.log(data)
-    this.makeRequest(data).then(response => {
-      this.setState({
-        response: response
-      })
-      // console.log('API Response:  ' + JSON.stringify(this.state.response));
-    });
-  };
   constructor(props) {
     super(props);
     this.state = {
@@ -80,29 +18,30 @@ class App extends Component {
       Secret_Key: '',
       STS_Token: '',
       Output_Type: 'Table',
-      regions: [{ 'us-east-1': 
-      ['default','jon2'] 
-    }] ,
-      clusters: [{ name: '' }],
+      possibleRegions:['us-east','eu-west-1'],
+      regions: [{
+        0: ['default', 'jon2']
+      }],
+      clusters: [{
+        0: ''
+      }],
 
 
 
-      columns:
-      [
-        {
-          id:'service',
+      columns: [{
+          id: 'service',
           Header: 'Service Name',
           accessor: 'service'
         },
         {
-          id:'cluster',
+          id: 'cluster',
           Header: 'Cluster Name',
           accessor: 'cluster'
         },
         {
-          id:'avg_uptime',
-          Header:'Avg Uptime',
-          accessor:'avg_uptime'
+          id: 'avg_uptime',
+          Header: 'Avg Uptime',
+          accessor: 'avg_uptime'
         },
         {
           id: 'desired_count',
@@ -125,102 +64,163 @@ class App extends Component {
           accessor: 'max_uptime'
         }
       ],
-      data: [
-        {
-          service:'jon',
-          cluster:26,
-          avg_uptime:'d',
-          desired_count:1,
-          running_count:2,
-          launch_type:'fargate',
-          max_uptime:'dffd'
-        }
-      ]
+      data: [{
+        service: 'jon',
+        cluster: 26,
+        avg_uptime: 'd',
+        desired_count: 1,
+        running_count: 2,
+        launch_type: 'fargate',
+        max_uptime: 'dffd'
+      }]
     };
   };
-handleRegionNameChange = (idx) => (evt) => {
- 
-  const idxRegion = this.state.regions.map((region, sidx) => {
-    if (idx !== sidx) {
-      return region
-    };
-    let tempData = {}
-    tempData[evt.target.value] = []
-    return tempData;
-  });
-  this.setState({
-    regions: idxRegion
-  });
-}
+  makeRequest(event,  user) {
+    event.preventDefault();
+    return new Promise((resolve, reject) => {
+      // console.log(this.state)
+      let body = {
+        "aws": {
+          "enabled": true,
+          "regions": {
+            "us-east-1": ["jon", "paul"]
+          },
+          "auth": {
+            "type": "default"
+          }
+        },
+        "output": {
+          "enabled": true,
+          "type": "json"
+        }
+      };
+      //Build the region object
+      let region = {}
+      region[this.state.AWS_Region] = [];
+      //Add the region object to the body
+      body['aws']['regions'] = region
+      console.log('Composed body, before making request: ' + JSON.stringify(body))
+      axios.post('http://10.210.235.189:5000/list', body)
+        .then(response => {
+          // handle success
+          let tempData = this.state.data;
+          tempData = response.data
+          resolve(this.setState({
+            response: tempData
+          }),
+          );
+        })
+        .catch(function (error) {
+          // handle error
+          console.log(error);
+          reject('Well, blame Noah, looks like the API is ded.');
 
-handleClusterNameChange = (idx) => (evt) => {
-  for(var i=0; i<this.state.regions.length; i++){
-    if(Object.keys(this.state.regions[i])[0]==='us-east-1'){
-      let temp=this.state.regions
-      temp[i]['us-east-1']=[evt.target.value]
-      console.log(JSON.stringify(this.state.regions))
-     
-    
-    this.setState({ regions : temp });
-    }
+        })
+        .then(function () {
+          console.log(JSON.stringify(this.state.response))
+        });
+    }, user)
+  };
 
+  // handleEntailmentRequest(event, data) {
+  //   // console.log(this.state)
+  //   event.preventDefault();
+  //   console.log(data)
+  //   this.makeRequest(data).then(response => {
+  //     this.setState({
+  //       response: response
+  //     })
+  //     // console.log('API Response:  ' + JSON.stringify(this.state.response));
+  //   });
+  // };
+  handleRegionNameChange = (idx) => (evt) => {
+
+    const idxRegion = this.state.regions.map((region, sidx) => {
+      if (idx !== sidx) {
+        return region
+      };
+      let tempData = {}
+      tempData[evt.target.value] = []
+      return tempData;
+    });
+    this.setState({
+      regions: idxRegion
+    });
   }
 
-  const idxCluster = this.state.regions.map((cluster, sidx) => {
-    if (idx !== sidx) return cluster;
-
-    console.log(cluster)
-    return { ...cluster, name: evt.target.value };
-  });
-  this.setState({ clusters: idxCluster });
-}
+  handleClusterNameChange = (idx) => (evt) => {
+    for (var i = 0; i < this.state.regions.length; i++) {
+      if (Object.keys(this.state.regions[i])[0] === 'us-east-1') {
+        let temp = this.state.regions
+        temp[i]['us-east-1'] = [evt.target.value]
+        console.log(JSON.stringify(this.state.regions))
 
 
-handleAddRegion = () => {
-  this.setState({
-    regions: this.state.regions.concat([{ name: '' }])
-  });
-}
-handleAddCluster = () => {
-  this.setState({
-    clusters: this.state.clusters.concat([{ name: '' }])
-  });
-}
-handleRemoveCluster = (idx) => () => {
-  this.setState({
-    clusters: this.state.clusters.filter((s, sidx) => idx !== sidx)
-  });
-}
-handleRemoveRegion = (idx) => () => {
-  this.setState({
-    regions: this.state.regions.filter((s, sidx) => idx !== sidx)
-  });
-}
+        this.setState({
+          regions: temp
+        });
+      }
 
+    }
+
+    const idxCluster = this.state.regions.map((cluster, sidx) => {
+      if (idx !== sidx) return cluster;
+
+      console.log(cluster)
+      return { ...cluster,
+        name: evt.target.value
+      };
+    });
+    this.setState({
+      clusters: idxCluster
+    });
+  }
+  handleAddRegion = () => {
+    this.setState({
+      regions: this.state.regions.concat([{
+          name:''
+      }])
+    });
+    console.log(this.state);
+  }
+  handleAddCluster = () => {
+    this.setState({
+      clusters: this.state.clusters.concat([{
+        name: ''
+      }])
+    });
+  }
+  handleRemoveCluster = (idx) => () => {
+    this.setState({
+      clusters: this.state.clusters.filter((s, sidx) => idx !== sidx)
+    });
+  }
+  handleRemoveRegion = (idx) => () => {
+    this.setState({
+      regions: this.state.regions.filter((s, sidx) => idx !== sidx)
+    });
+  }
   render() {
-    if (this.state.response) {
-      return ( 
-        <div className = 'App'>
-        <Jimberly data={this.state.data} columns={this.state.columns}/>
-        <img src = {
-            logo
-          }
-          className = 'App-logo'
-          alt = 'logo' />
-
+      if (this.state.response) {
+        return (
+          <div className = 'App'>
+          <ResultTable data={this.state.data} columns={this.state.columns}/>
           </div>
         )
-      }
-    else
+      } else
     return (
 <div className='App'>
+  <header className='App-header'>
+    <h2>
+    Cloud Insights
+    </h2>
+  </header>
    <form>
-      {/* ... */}
       <h4>Regions</h4>
       {
         this.state.regions.map((region, idx) => (
       <div className="region">
-         <p className='dingus'> 
+         <p className='simpleText'> 
             <button type="button" onClick={this.handleRemoveRegion(idx)} className="small">X</button>
             <input
                type="text"
@@ -245,17 +245,16 @@ handleRemoveRegion = (idx) => () => {
          <br />
       </div>
       ))}
+      <select>
+                { this.state.possibleRegions.map((option, key) => <option key={key} >{option}</option>) }
+            </select>
       <button type="button" onClick={this.handleAddRegion} className="small">Add Another Region</button>  
    </form>
-   <header className='App-header'>
-      <h2>
-         Cloud Insights
-      </h2>
-   </header>
+
    <div className='warn'>
       * indicates Required field
    </div>
-   <h4 className='dingus'> 
+   <h4 className='simpleText'> 
       Inputs
    </h4>
    <form>
@@ -296,12 +295,12 @@ handleRemoveRegion = (idx) => () => {
       }
       {this.state.Auth_Type === 'Profile' && (
       <div>
-         <label>Provide an array of profiles. Sorry, I should do this for you</label>
+         <label>Provide an array of profiles.</label>
          <input type='text' name='Profile'  onChange={evt => {this.setState({Profile:evt.target.value})}}/>
       </div>
       )
       }
-      <h4 className='dingus'>
+      <h4 className='simpleText'>
          Outputs
       </h4>
       <label >
@@ -322,12 +321,12 @@ handleRemoveRegion = (idx) => () => {
       <br></br>
       <br></br>
       <br></br>
-      <button onClick={(e) => {this.handleEntailmentRequest(e, this.state.AWS_Region)}}>Submit</button>
+      <button onClick={(e) => {this.makeRequest(e, this.state.AWS_Region)}}>Submit</button>
       <br></br>
       <br></br>
       <br></br>
    </form>
-   <h4 className='dingus'>
+   <h4 className='simpleText'>
       About Us
    </h4>
    <div>
@@ -354,6 +353,4 @@ handleRemoveRegion = (idx) => () => {
     );
   }
 }
-
-
 export default App;
