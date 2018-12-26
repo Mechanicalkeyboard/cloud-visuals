@@ -1,0 +1,242 @@
+import React from "react"
+
+class Form extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      auth_type: "default",
+      auth_types: ["default", "profile", "keys"],
+      checkbox_advanced_options: false,
+      checkbox_all_regions: true,
+      description: "",
+      filters: [],
+      owner: "",
+      profile: "",
+      profiles: [],
+      regions: ["us-east-1", "eu-west-2", "ap-southeast-1"],
+    }
+    this.changeBool = this.changeBool.bind(this);
+    this.genRegionState = this.genRegionState.bind(this);
+    this.dumpStateDummy = this.dumpStateDummy.bind(this);
+    this.handleDropChange = this.handleDropChange.bind(this);
+    this.updateInputValue = this.updateInputValue.bind(this);
+    this.removeArrayItem = this.removeArrayItem.bind(this);
+    this.advancedOptions = this.advancedOptions.bind(this);
+    this.regionsSelection = this.regionsSelection.bind(this);
+    this.authOptions = this.authOptions.bind(this);
+    this.filtersOptions = this.filtersOptions.bind(this);
+    this.regionsOptions = this.regionsOptions.bind(this);
+  }
+
+  removeArrayItem(evt) {
+    //make sure id tag == the name of the state variables
+    let tempArray = this.state[evt.target.id]
+    tempArray.splice(evt.target.name, 1);
+    this.setState({
+      [evt.target.id]: tempArray
+    })
+  }
+
+  addArrayItem(value, array) {
+    let tempFilter = this.state[array]
+    tempFilter.push(value)
+    this.setState({
+      [this.state[array]]: tempFilter
+    });
+  }
+
+  authOptions() {
+    if (this.state.auth_type === "profile") {
+      return (
+        <div>
+          <label>Profiles: </label>
+          <input name="profile" placeholder="add a profile here!" onChange={this.updateInputValue}></input>
+          <button onClick={() => { this.addArrayItem(this.state.profile, "profiles") }}>+</button>
+          {
+            this.state.profiles.map((item, index) =>
+              <div>
+                <label name={index} value={item}>
+                  {item}
+                </label>
+                <button name={index} id="profiles" onClick={this.removeArrayItem}>x</button>
+                <br />
+              </div>
+            )
+          }
+        </div>
+      )
+    }
+    else if(this.state.auth_type === "keys"){
+      return(
+      <div>
+        <label>Auth Keys: </label>
+        <input name="accessKey" placeholder="Add key Here..." onChange={this.updateInputValue}></input>
+        <input name="secretKey" placeholder="Add Secret key Here..." onChange={this.updateInputValue}></input>
+      </div>
+      )
+    }
+    else {
+      return null
+    }
+  }
+
+  filtersOptions(){
+    if (this.state.checkbox_advanced_options) {
+      return (
+        <div>
+        <label>Filters: </label>
+        <input name="filter" placeholder="add a filter here!" onChange={this.updateInputValue}></input>
+        <button onClick={() => { this.addArrayItem(this.state.filter, "filters") }}>+</button>
+        {
+          this.state.filters.map((item, index) =>
+            <div>
+              <label name={index} value={item}>
+                {item}
+              </label>
+              <button name={index} id="filters" onClick={this.removeArrayItem}>x</button>
+              <br />
+            </div>
+          )
+        }
+        
+        </div>)
+      }
+      else {
+        return null
+      }
+  }
+  regionsOptions(){
+    if (this.state.checkbox_advanced_options) {
+      return (
+        <div>
+    <label>All Regions: </label>
+    <input
+      name="checkbox_all_regions"
+      type="checkbox"
+      checked={this.state.checkbox_all_regions}
+      onChange={this.changeBool} />
+      </div>
+    )
+  }
+  else {
+    return null
+  }
+  }
+  advancedOptions() {
+    if (this.state.checkbox_advanced_options) {
+      return (
+        <div id="testingAO">
+          <label>Authentication Type: </label>
+          <select name="auth_type" onChange={this.handleDropChange}>
+            {
+              this.state.auth_types.map((item, index) =>
+                <option value={item}>{item}</option>
+              )
+            }
+          </select>
+        </div>
+      )
+    }
+    else {
+      return null;
+    }
+  }
+
+  regionsSelection() {
+    if (this.state.checkbox_advanced_options && !this.state.checkbox_all_regions) {
+      return (
+        <div>
+          {
+            this.state.regions.map((item, index) =>
+              <div>
+                <label>{item}</label>
+                <input
+                  name={item}
+                  type="checkbox"
+                  // what are you doing here?
+                  checked={this.state.test}
+                  onChange={this.changeBool}
+                />
+              </div>
+
+            )}
+        </div>
+      )
+    }
+    else {
+      return null;
+    }
+  }
+
+  changeBool(evt) {
+    this.setState({
+      [evt.target.name]: !this.state[evt.target.name]
+    })
+  }
+
+  handleDropChange(evt) {
+    this.setState({
+      [evt.target.name]: evt.target.value
+    })
+  }
+
+  genRegionState() {
+    let x = ''
+    for (x in this.state.regions) {
+      this.setState({
+        [this.state.regions[x]]: false,
+      })
+    }
+  }
+
+  dumpStateDummy() {
+    console.log(this.state)
+  }
+
+  updateInputValue(evt) {
+    this.setState({
+      [evt.target.name]: evt.target.value
+    });
+  }
+
+  handleSubmit = (e) => { e.preventDefault() }
+
+  handleClick = (e) => { e.preventDefault() }
+
+  render() {
+    return <div class="parent">
+      <div>
+      <label>Advanced Options</label>
+      <input
+        name="checkbox_advanced_options"
+        type="checkbox"
+        checked={this.state.checkbox_advanced_options}
+        onChange={this.changeBool} />
+        </div>
+      <this.advancedOptions />
+      <this.authOptions />
+      <this.filtersOptions />
+      
+      {/* keep these together */}
+      <this.regionsOptions />
+      <this.regionsSelection />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+
+      <button onClick={this.genRegionState}>
+        Get Region State
+      </button>
+
+      <button onClick={this.dumpStateDummy}>
+        dumpStateDummy
+      </button>
+
+    </div>;
+  }
+}
+
+export default Form
